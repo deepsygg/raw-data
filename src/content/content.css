@@ -1,0 +1,84 @@
+/* raw.data Overlay Styles */
+
+/* Import IBM Plex Mono */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
+.rawdata-label {
+  position: fixed;
+  z-index: 2147483647;
+  background: rgba(232, 153, 141, 0.95);
+  color: #0F0D0C;
+  font-family: 'IBM Plex Mono', 'Consolas', 'Monaco', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 2px;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  animation: rawdata-fadein 0.15s ease;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+  backdrop-filter: blur(2px);
+}
+
+/* Smaller labels for small screens (13" MacBook and smaller) */
+@media screen and (max-width: 1440px) {
+  .rawdata-label {
+    font-size: 8px;
+    padding: 1px 3px;
+    border-radius: 2px;
+  }
+}
+
+/* Even smaller for very small screens */
+@media screen and (max-width: 1280px) {
+  .rawdata-label {
+    font-size: 7px;
+    padding: 1px 3px;
+  }
+}
+
+@keyframes rawdata-fadein {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+/* Highlight effect on scanned elements */
+.rawdata-highlight {
+  outline: 1px solid #E8998D !important;
+  outline-offset: 1px;
+}
+
+/* Different colors for different element types */
+.rawdata-label[data-type="button"] {
+  background: rgba(232, 153, 141, 0.95);
+}
+
+.rawdata-label[data-type="input"] {
+  background: rgba(157, 202, 235, 0.95);
+  color: #0F0D0C;
+}
+
+.rawdata-label[data-type="link"] {
+  background: rgba(168, 213, 162, 0.95);
+  color: #0F0D0C;
+}
+
+.rawdata-label[data-type="select"] {
+  background: rgba(201, 169, 232, 0.95);
+  color: #0F0D0C;
+}
+
+.rawdata-label[data-type="form"] {
+  background: rgba(232, 213, 154, 0.95);
+  color: #0F0D0C;
+}
+
+/* Translated labels - green background */

@@ -1,0 +1,102 @@
+#!/usr/bin/expect -f
+
+set timeout 300
+
+spawn ssh root@178.18.240.104
+
+expect {
+    "password:" {
+        send "UPnBhmJzCg1x\r"
+        exp_continue
+    }
+    "yes/no" {
+        send "yes\r"
+        exp_continue
+    }
+    "root@" {
+        send "echo '=== Installing Nginx ==='\r"
+        expect "root@"
+        
+        send "apt update\r"
+        expect "root@"
+        
+        send "apt install -y nginx certbot python3-certbot-nginx\r"
+        expect "root@"
+        
+        send "echo ''\r"
+        expect "root@"
+        
+        send "echo '=== Creating Nginx config ==='\r"
+        expect "root@"
+        
+        send "cat > /etc/nginx/sites-available/rawdata <<'NGINX_EOF'
+server {
+    listen 80;
+    server_name api.rawdata.pro;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \\$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \\$host;
+        proxy_set_header X-Real-IP \\$remote_addr;
+        proxy_set_header X-Forwarded-For \\$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \\$scheme;
+        proxy_cache_bypass \\$http_upgrade;
+    }
+}
+NGINX_EOF
+\r"
+        expect "root@"
+        
+        send "ln -sf /etc/nginx/sites-available/rawdata /etc/nginx/sites-enabled/\r"
+        expect "root@"
+        
+        send "rm -f /etc/nginx/sites-enabled/default\r"
+        expect "root@"
+        
+        send "nginx -t\r"
+        expect "root@"
+        
+        send "systemctl restart nginx\r"
+        expect "root@"
+        
+        send "systemctl enable nginx\r"
+        expect "root@"
+        
+        send "echo ''\r"
+        expect "root@"
+        
+        send "echo '=== Opening firewall ==='\r"
+        expect "root@"
+        
+        send "ufw allow 'Nginx Full'\r"
+        expect "root@"
+        
+        send "ufw allow 80/tcp\r"
+        expect "root@"
+        
+        send "ufw allow 443/tcp\r"
+        expect "root@"
+        
+        send "echo ''\r"
+        expect "root@"
+        
+        send "echo '=== Nginx configured! ==='\r"
+        expect "root@"
+        
+        send "echo 'Next: Run SSL setup after DNS propagates'\r"
+        expect "root@"
+        
+        send "echo ''\r"
+        expect "root@"
+        
+        send "systemctl status nginx | head -10\r"
+        expect "root@"
+        
+        send "exit\r"
+    }
+}
+
+expect eof

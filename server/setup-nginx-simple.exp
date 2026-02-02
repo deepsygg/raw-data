@@ -1,0 +1,61 @@
+#!/usr/bin/expect -f
+
+set timeout 120
+
+# Upload config script
+spawn scp /Users/macbookpro/raw-data/raw-data/server/nginx-config.sh root@178.18.240.104:/tmp/
+
+expect {
+    "password:" {
+        send "UPnBhmJzCg1x\r"
+        exp_continue
+    }
+    "yes/no" {
+        send "yes\r"
+        exp_continue
+    }
+    eof
+}
+
+# Run it
+spawn ssh root@178.18.240.104
+
+expect {
+    "password:" {
+        send "UPnBhmJzCg1x\r"
+        exp_continue
+    }
+    "yes/no" {
+        send "yes\r"
+        exp_continue
+    }
+    "root@" {
+        send "chmod +x /tmp/nginx-config.sh\r"
+        expect "root@"
+        
+        send "bash /tmp/nginx-config.sh\r"
+        expect "root@"
+        
+        send "ufw allow 'Nginx Full'\r"
+        expect "root@"
+        
+        send "ufw allow 80/tcp\r"
+        expect "root@"
+        
+        send "ufw allow 443/tcp\r"
+        expect "root@"
+        
+        send "echo ''\r"
+        expect "root@"
+        
+        send "echo '=== Nginx configured! ==='\r"
+        expect "root@"
+        
+        send "curl -s http://localhost/health | head -5\r"
+        expect "root@"
+        
+        send "exit\r"
+    }
+}
+
+expect eof

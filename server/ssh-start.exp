@@ -1,0 +1,54 @@
+#!/usr/bin/expect -f
+
+set timeout 60
+
+spawn ssh root@178.18.240.104
+
+expect {
+    "password:" {
+        send "UPnBhmJzCg1x\r"
+        exp_continue
+    }
+    "yes/no" {
+        send "yes\r"
+        exp_continue
+    }
+    "root@" {
+        send "cd /root/rawdata-server\r"
+        expect "root@"
+        
+        send "pm2 stop rawdata-server 2>/dev/null || true\r"
+        expect "root@"
+        
+        send "pm2 delete rawdata-server 2>/dev/null || true\r"
+        expect "root@"
+        
+        send "pm2 start index.js --name rawdata-server\r"
+        expect "root@"
+        
+        send "pm2 save\r"
+        expect "root@"
+        
+        send "pm2 status\r"
+        expect "root@"
+        
+        send "curl -s http://localhost:3000/health | head -20\r"
+        expect "root@"
+        
+        send "echo '==================================='\r"
+        expect "root@"
+        
+        send "echo 'SERVER RUNNING:'\r"
+        expect "root@"
+        
+        send "echo 'http://178.18.240.104:3000'\r"
+        expect "root@"
+        
+        send "echo '==================================='\r"
+        expect "root@"
+        
+        send "exit\r"
+    }
+}
+
+expect eof

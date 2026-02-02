@@ -1,0 +1,18 @@
+{
+  "name": "rawdata-server",
+  "version": "1.0.0",
+  "description": "Server for raw.data - stores webpage scans and provides shareable links for AI",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "keywords": ["raw.data", "ai", "web-scraping", "json"],
+  "author": "raw.data team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "nanoid": "^3.3.7"
+  }
+}

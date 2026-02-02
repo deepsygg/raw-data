@@ -1,0 +1,282 @@
+/* raw.data Options Page Styles */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'IBM Plex Mono', 'SF Mono', 'Consolas', 'Monaco', monospace;
+  background: #0F0D0C;
+  color: #FAF5F4;
+  padding: 40px 20px;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #2A2525;
+}
+
+.logo {
+  font-size: 32px;
+  font-weight: 700;
+  color: #E8998D;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #8A8180;
+  font-weight: 400;
+}
+
+/* Settings Sections */
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.setting-section {
+  background: #1A1615;
+  border: 1px solid #2A2525;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #FAF5F4;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Setting Items */
+.setting-item {
+  margin-bottom: 20px;
+}
+
+.setting-item:last-child {
+  margin-bottom: 0;
+}
+
+.setting-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #FAF5F4;
+  margin-bottom: 8px;
+}
+
+.setting-hint {
+  display: block;
+  font-size: 11px;
+  color: #8A8180;
+  font-weight: 400;
+  margin-top: 4px;
+}
+
+.setting-note {
+  display: block;
+  font-size: 11px;
+  color: #8A8180;
+  margin-top: 6px;
+  font-style: italic;
+}
+
+/* Inputs */
+.setting-select,
+.setting-input {
+  width: 100%;
+  background: #0F0D0C;
+  border: 1px solid #2A2525;
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: #FAF5F4;
+  font-family: inherit;
+  font-size: 13px;
+  transition: all 0.15s ease;
+}
+
+.setting-select:focus,
+.setting-input:focus {
+  outline: none;
+  border-color: #E8998D;
+  background: #1A1615;
+}
+
+.setting-select option {
+  background: #1A1615;
+  color: #FAF5F4;
+}
+
+.setting-input[type="number"] {
+  width: 120px;
+}
+
+/* Checkboxes */
+.setting-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.setting-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: #E8998D;
+  flex-shrink: 0;
+}
+
+.checkbox-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Info Box */
+.info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(232, 153, 141, 0.1);
+  border: 1px solid rgba(232, 153, 141, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.info-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.info-text {
+  font-size: 12px;
+  color: #FAF5F4;
+  line-height: 1.5;
+}
+
+/* Footer */
+.footer {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid #2A2525;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-save,
+.btn-reset {
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+}
+
+.btn-save {
+  background: #E8998D;
+  color: #0F0D0C;
+  flex: 1;
+}
+
+.btn-save:hover {
+  background: #F2B5AB;
+  transform: translateY(-1px);
+}
+
+.btn-save:active {
+  transform: translateY(0);
+}
+
+.btn-reset {
+  background: transparent;
+  border: 1px solid #2A2525;
+  color: #8A8180;
+}
+
+.btn-reset:hover {
+  border-color: #E8998D;
+  color: #E8998D;
+  background: rgba(232, 153, 141, 0.1);
+}
+
+.save-status {
+  font-size: 12px;
+  color: #E8998D;
+  margin-left: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.save-status.show {
+  opacity: 1;
+}
+
+/* Version Info */
+.version-info {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 11px;
+  color: #5A5555;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.version-info a {
+  color: #8A8180;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.version-info a:hover {
+  color: #E8998D;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  body {
+    padding: 20px 16px;
+  }
+  
+  .container {
+    max-width: 100%;
+  }
+  
+  .setting-section {
+    padding: 16px;
+  }
+  
+  .footer {
+    flex-direction: column;
+  }
+  
+  .btn-save,
+  .btn-reset {
+    width: 100%;
+  }
+}

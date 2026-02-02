@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>raw.data Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1 class="logo">raw.data</h1>
+      <p class="subtitle">Extension Settings</p>
+    </div>
+
+    <!-- Settings Sections -->
+    <div class="settings">
+      
+      <!-- Translation Settings -->
+      <div class="setting-section">
+        <h2 class="section-title">🌐 Translation</h2>
+        
+        <div class="setting-item">
+          <label for="defaultTargetLang" class="setting-label">
+            Default Target Language
+            <span class="setting-hint">Language to translate UI elements to</span>
+          </label>
+          <select id="defaultTargetLang" class="setting-select">
+            <option value="English">English</option>
+            <option value="Russian">Russian (Русский)</option>
+            <option value="Chinese">Chinese (中文)</option>
+            <option value="Spanish">Spanish (Español)</option>
+            <option value="French">French (Français)</option>
+            <option value="German">German (Deutsch)</option>
+            <option value="Japanese">Japanese (日本語)</option>
+            <option value="Korean">Korean (한국어)</option>
+          </select>
+        </div>
+        
+        <div class="setting-item">
+          <label class="setting-checkbox">
+            <input type="checkbox" id="autoTranslate">
+            <span class="checkbox-label">
+              Auto-translate after scan
+              <span class="setting-hint">Automatically translate UI elements after Quick/Full scan</span>
+            </span>
+          </label>
+        </div>
+        
+        <div class="setting-item">
+          <label class="setting-checkbox">
+            <input type="checkbox" id="alwaysAskLanguage">
+            <span class="checkbox-label">
+              Always ask for language
+              <span class="setting-hint">Show language prompt even if default is set</span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Explain Mode Settings -->
+      <div class="setting-section">
+        <h2 class="section-title">💡 Explain Mode</h2>
+        
+        <div class="setting-item">
+          <label for="explainHotkey" class="setting-label">
+            Hotkey
+            <span class="setting-hint">Keyboard shortcut to explain element</span>
+          </label>
+          <input type="text" id="explainHotkey" class="setting-input" value="Alt+E" readonly>
+          <span class="setting-note">Currently fixed to Alt+E</span>
+        </div>
+        
+        <div class="setting-item">
+          <label class="setting-checkbox">
+            <input type="checkbox" id="showRiskWarnings" checked>
+            <span class="checkbox-label">
+              Show risk warnings
+              <span class="setting-hint">Highlight potentially dangerous actions (Approve, Delete, etc.)</span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <!-- AI Settings -->
+      <div class="setting-section">
+        <h2 class="section-title">🤖 AI Settings</h2>
+        
+        <div class="setting-item">
+          <label for="aiModel" class="setting-label">
+            AI Model
+            <span class="setting-hint">Which Claude model to use</span>
+          </label>
+          <select id="aiModel" class="setting-select">
+            <option value="claude-sonnet-4-5-20250929">Claude Sonnet 4.5 (Recommended)</option>
+            <option value="claude-sonnet-3-5-20241022">Claude Sonnet 3.5</option>
+          </select>
+        </div>
+        
+        <div class="setting-item">
+          <div class="info-box">
+            <span class="info-icon">ℹ️</span>
+            <span class="info-text">
+              API key is hardcoded and covered by raw.data. No costs for you!
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PDF Settings -->
+      <div class="setting-section">
+        <h2 class="section-title">📄 PDF Settings</h2>
+        
+        <div class="setting-item">
+          <label for="pdfOcrPages" class="setting-label">
+            OCR Max Pages
+            <span class="setting-hint">Maximum pages to process with OCR (scanned PDFs)</span>
+          </label>
+          <input type="number" id="pdfOcrPages" class="setting-input" min="1" max="50" value="10">
+        </div>
+        
+        <div class="setting-item">
+          <label for="pdfOcrLanguage" class="setting-label">
+            OCR Language
+            <span class="setting-hint">Language to recognize in scanned PDFs</span>
+          </label>
+          <select id="pdfOcrLanguage" class="setting-select">
+            <option value="eng">English</option>
+            <option value="rus">Russian</option>
+            <option value="chi_sim">Chinese (Simplified)</option>
+            <option value="jpn">Japanese</option>
+            <option value="kor">Korean</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Other Settings -->
+      <div class="setting-section">
+        <h2 class="section-title">⚙️ Other</h2>
+        
+        <div class="setting-item">
+          <label class="setting-checkbox">
+            <input type="checkbox" id="overlayEnabled" checked>
+            <span class="checkbox-label">
+              Show overlay labels by default
+              <span class="setting-hint">Show element IDs when scanning pages</span>
+            </span>
+          </label>
+        </div>
+        
+        <div class="setting-item">
+          <label class="setting-checkbox">
+            <input type="checkbox" id="showNotifications" checked>
+            <span class="checkbox-label">
+              Show notifications
+              <span class="setting-hint">Get notified when scans complete</span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Save Button -->
+    <div class="footer">
+      <button id="saveSettings" class="btn-save">
+        Save Settings
+      </button>
+      <button id="resetSettings" class="btn-reset">
+        Reset to Defaults
+      </button>
+      <div id="saveStatus" class="save-status"></div>
+    </div>
+
+    <!-- Version -->
+    <div class="version-info">
+      <span>raw.data v1.0.0</span>
+      <a href="https://github.com/yourusername/raw-data" target="_blank">GitHub</a>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

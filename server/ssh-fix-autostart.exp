@@ -1,0 +1,81 @@
+#!/usr/bin/expect -f
+
+set timeout 60
+
+spawn ssh root@178.18.240.104
+
+expect {
+    "password:" {
+        send "UPnBhmJzCg1x\r"
+        exp_continue
+    }
+    "yes/no" {
+        send "yes\r"
+        exp_continue
+    }
+    "root@" {
+        send "pm2 save --force\r"
+        expect "root@"
+        
+        send "systemctl enable pm2-root\r"
+        expect "root@"
+        
+        send "systemctl start pm2-root\r"
+        expect "root@"
+        
+        send "echo ''\r"
+        expect "root@"
+        
+        send "echo '=== Systemd Service Status ==='\r"
+        expect "root@"
+        
+        send "systemctl is-enabled pm2-root\r"
+        expect "root@"
+        
+        send "systemctl is-active pm2-root\r"
+        expect "root@"
+        
+        send "echo ''\r"
+        expect "root@"
+        
+        send "echo '=== PM2 Status ==='\r"
+        expect "root@"
+        
+        send "pm2 status\r"
+        expect "root@"
+        
+        send "echo ''\r"
+        expect "root@"
+        
+        send "echo '==================================='\r"
+        expect "root@"
+        
+        send "echo 'SERVER FULLY CONFIGURED FOR 24/7'\r"
+        expect "root@"
+        
+        send "echo ''\r"
+        expect "root@"
+        
+        send "echo 'Auto-start on boot: ENABLED'\r"
+        expect "root@"
+        
+        send "echo 'Auto-restart on crash: ENABLED'\r"
+        expect "root@"
+        
+        send "echo 'Process saved: DONE'\r"
+        expect "root@"
+        
+        send "echo ''\r"
+        expect "root@"
+        
+        send "echo 'You never need to touch this server again!'\r"
+        expect "root@"
+        
+        send "echo '==================================='\r"
+        expect "root@"
+        
+        send "exit\r"
+    }
+}
+
+expect eof

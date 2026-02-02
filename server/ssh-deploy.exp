@@ -1,0 +1,64 @@
+#!/usr/bin/expect -f
+
+set timeout 120
+
+# Upload files
+spawn scp -r package.json index.js README.md .gitignore root@178.18.240.104:/root/rawdata-server/
+
+expect {
+    "password:" {
+        send "UPnBhmJzCg1x\r"
+        exp_continue
+    }
+    "yes/no" {
+        send "yes\r"
+        exp_continue
+    }
+    eof
+}
+
+# Connect and deploy
+spawn ssh root@178.18.240.104
+
+expect {
+    "password:" {
+        send "UPnBhmJzCg1x\r"
+        exp_continue
+    }
+    "yes/no" {
+        send "yes\r"
+        exp_continue
+    }
+    "root@" {
+        send "cd /root/rawdata-server\r"
+        expect "root@"
+        
+        send "npm install\r"
+        expect "root@" 60
+        
+        send "pm2 stop rawdata-server 2>/dev/null || true\r"
+        expect "root@"
+        
+        send "pm2 delete rawdata-server 2>/dev/null || true\r"
+        expect "root@"
+        
+        send "pm2 start index.js --name rawdata-server\r"
+        expect "root@"
+        
+        send "pm2 save\r"
+        expect "root@"
+        
+        send "pm2 status\r"
+        expect "root@"
+        
+        send "echo '\n=== SERVER DEPLOYED ==='\r"
+        expect "root@"
+        
+        send "echo 'URL: http://178.18.240.104:3000'\r"
+        expect "root@"
+        
+        send "exit\r"
+    }
+}
+
+expect eof

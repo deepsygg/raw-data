@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>raw.data - Scan History</title>
+  <link rel="stylesheet" href="history.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1 class="logo">raw.data</h1>
+      <p class="subtitle">Scan History</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-item">
+        <span class="stat-value" id="totalScans">0</span>
+        <span class="stat-label">Total Scans</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="storageUsed">0 KB</span>
+        <span class="stat-label">Storage Used</span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn btn-secondary" id="refreshHistory">
+        <span>🔄</span> Refresh
+      </button>
+      <button class="btn btn-danger" id="clearHistory">
+        <span>🗑️</span> Clear All
+      </button>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">📭</div>
+      <div class="empty-title">No scan history yet</div>
+      <div class="empty-text">
+        Start scanning pages to see them here.<br>
+        History saves your last 10 scans automatically.
+      </div>
+    </div>
+
+    <!-- History List -->
+    <div class="history-list" id="historyList">
+      <!-- History items will be inserted here -->
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading" id="loading" style="display: none;">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Loading history...</div>
+    </div>
+  </div>
+
+  <!-- Modal for scan details -->
+  <div class="modal" id="scanModal" style="display: none;">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Scan Details</h2>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Scan details will be inserted here -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="copyModalJson">Copy JSON</button>
+        <button class="btn btn-secondary" id="copyModalAI">Copy for AI</button>
+        <button class="btn btn-danger" id="deleteScan">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="history.js"></script>
+</body>
+</html>
