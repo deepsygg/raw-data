@@ -871,6 +871,7 @@
         clearOverlay();
       }
       sendResponse({ success: true });
+      return true;
     }
     
     if (request.action === 'clearOverlay') {
