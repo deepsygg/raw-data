@@ -640,14 +640,6 @@
     overlayLabels = [];
   }
   
-  // Update overlay labels with translations
-    if (/[\uAC00-\uD7AF]/.test(bodyText)) return 'Korean';
-    if (/[\u0600-\u06FF]/.test(bodyText)) return 'Arabic';
-    
-    // Default to English
-    return 'English';
-  }
-  
   // Main scan function (expose to window for chat.js)
   async function performScan(type, showOverlayLabels) {
     resetCounters();
@@ -884,14 +876,10 @@
     if (request.action === 'clearOverlay') {
       clearOverlay();
       sendResponse({ success: true });
+      return true;
     }
     
-    if (request.action === 'getPageLanguage') {
-      const language = detectPageLanguage();
-      sendResponse({ success: true, language: language });
-    }
-    
-    return true; // Keep channel open for async response
+    return false; // No async response needed
   });
   
   // Handle scroll - update label positions

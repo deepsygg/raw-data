@@ -92,25 +92,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
   
-  // Handle translate elements
-  }
-  
-  // Handle explain element
-  if (request.action === 'explainElement') {
-    explainElement(request.element, request.context)
-      .then(explanation => sendResponse({ success: true, explanation: explanation }))
-      .catch(error => sendResponse({ success: false, error: error.message }));
-    return true;
-  }
-  
-  // Handle generate site overview
-  if (request.action === 'generateSiteOverview') {
-    generateSiteOverview(request.pageInfo)
-      .then(overview => sendResponse({ success: true, overview: overview }))
-      .catch(error => sendResponse({ success: false, error: error.message }));
-    return true;
-  }
-  
   // Handle panel mode update
   if (request.action === 'updatePanelMode' || request.action === 'togglePanelMode') {
     updatePanelMode(request.useSidePanel)
@@ -310,46 +291,6 @@ async function generateScanLink(data) {
   return `local://${scanId}`;
 }
 
-// Translate UI elements using Claude
-  
-  const prompt = `Explain in ONE short sentence (max 10 words):
-
-"${element.text || element.type}"
-
-Just the action. No extra words.`;
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': claudeApiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 64,
-        messages: [{
-          role: 'user',
-          content: prompt
-        }]
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Claude API error: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    return data.content[0].text.trim();
-    
-  } catch (error) {
-    console.error('[raw.data] Explain error:', error);
-    throw error;
-  }
-}
-
 // Update panel mode (side panel vs popup)
 async function updatePanelMode(useSidePanel) {
   try {
@@ -367,85 +308,6 @@ async function updatePanelMode(useSidePanel) {
     }
   } catch (error) {
     console.error('[raw.data] Failed to update panel mode:', error);
-    throw error;
-  }
-}
-
-// Generate site overview using Claude
-async function generateSiteOverview(pageInfo) {
-  // TODO: Replace with your Claude API key
-  const claudeApiKey = 'YOUR_CLAUDE_API_KEY_HERE';
-  
-  // Detect site type based on URL and content
-  let siteType = 'general';
-  const domain = pageInfo.domain.toLowerCase();
-  
-  if (domain.includes('uniswap') || domain.includes('pancake') || domain.includes('sushi')) {
-    siteType = 'dex';
-  } else if (domain.includes('aave') || domain.includes('compound') || domain.includes('lido')) {
-    siteType = 'lending';
-  } else if (domain.includes('opensea') || domain.includes('blur') || domain.includes('rarible')) {
-    siteType = 'nft';
-  } else if (pageInfo.text.toLowerCase().includes('trade') || pageInfo.text.toLowerCase().includes('order')) {
-    siteType = 'trading';
-  } else if (pageInfo.text.toLowerCase().includes('swap') || pageInfo.text.toLowerCase().includes('liquidity')) {
-    siteType = 'defi';
-  }
-  
-  const prompt = `You are an expert onboarding assistant. Analyze this website and provide a clear, helpful overview for a new user.
-
-Website Information:
-- URL: ${pageInfo.url}
-- Title: ${pageInfo.title}
-- Domain: ${pageInfo.domain}
-- Site Type: ${siteType}
-- Sample Text: ${pageInfo.text}
-- Key Buttons: ${pageInfo.buttons?.join(', ') || 'None'}
-- Main Headings: ${pageInfo.headings?.join(', ') || 'None'}
-
-Provide a structured overview in this format:
-
-### What is this site?
-[1-2 sentences explaining what this site does]
-
-### How to use it
-[3-4 bullet points with clear, actionable steps]
-
-### Key Features
-[2-3 main features or functions available]
-
-${siteType === 'dex' || siteType === 'defi' || siteType === 'lending' ? '### ⚠️ Important Notes\n[Safety tips, risks, or warnings for DeFi/crypto sites]' : ''}
-
-Keep it concise, helpful, and beginner-friendly. Use simple language. Focus on practical guidance.`;
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': claudeApiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 1024,
-        messages: [{
-          role: 'user',
-          content: prompt
-        }]
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Claude API error: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    return data.content[0].text.trim();
-    
-  } catch (error) {
-    console.error('[raw.data] Site overview error:', error);
     throw error;
   }
 }
