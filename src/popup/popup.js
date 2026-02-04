@@ -944,28 +944,54 @@ function applyLanguage(lang) {
   const t = translations[lang];
   
   // Update button texts
-  document.querySelector('#quickScan .btn-icon + span')?.replaceWith(document.createTextNode(t.quickScan));
-  document.querySelector('#quickScan .btn-hint').textContent = t.quickHint;
+  const quickScanText = document.querySelector('#quickScan .btn-text');
+  if (quickScanText) quickScanText.textContent = t.quickScan;
+  const quickScanHint = document.querySelector('#quickScan .btn-hint');
+  if (quickScanHint) quickScanHint.textContent = t.quickHint;
   
-  document.querySelector('#fullScan .btn-icon + span')?.replaceWith(document.createTextNode(t.fullScan));
-  document.querySelector('#fullScan .btn-hint').textContent = t.fullHint;
+  const fullScanText = document.querySelector('#fullScan .btn-text');
+  if (fullScanText) fullScanText.textContent = t.fullScan;
+  const fullScanHint = document.querySelector('#fullScan .btn-hint');
+  if (fullScanHint) fullScanHint.textContent = t.fullHint;
   
-  document.querySelector('#deepScan .btn-icon + span')?.replaceWith(document.createTextNode(t.deepScan));
-  document.querySelector('#deepScan .btn-hint').textContent = t.deepHint;
+  const deepScanText = document.querySelector('#deepScan .btn-text');
+  if (deepScanText) deepScanText.textContent = t.deepScan;
+  const deepScanHint = document.querySelector('#deepScan .btn-hint');
+  if (deepScanHint) deepScanHint.textContent = t.deepHint;
   
-  document.querySelector('#openChat .btn-icon + span')?.replaceWith(document.createTextNode(t.chat));
-  document.querySelector('#openChat .btn-hint').textContent = t.chatHint;
+  const chatText = document.querySelector('#openChat .btn-text');
+  if (chatText) chatText.textContent = t.chat;
+  const chatHint = document.querySelector('#openChat .btn-hint');
+  if (chatHint) chatHint.textContent = t.chatHint;
   
-  document.querySelector('#openHistory .btn-icon + span')?.replaceWith(document.createTextNode(t.history));
-  document.querySelector('#openHistory .btn-hint').textContent = t.historyHint;
+  const historyText = document.querySelector('#openHistory .btn-text');
+  if (historyText) historyText.textContent = t.history;
+  const historyHint = document.querySelector('#openHistory .btn-hint');
+  if (historyHint) historyHint.textContent = t.historyHint;
   
   // Update other UI elements
-  document.querySelector('.toggle-label').textContent = t.showLabels;
-  document.querySelector('.results-title')?.replaceWith(document.createTextNode(t.scanComplete));
-  document.getElementById('getLink')?.replaceWith(document.createTextNode(t.getLink));
-  document.getElementById('copyForAI')?.replaceWith(document.createTextNode(t.copyForAI));
-  document.getElementById('copyJson')?.replaceWith(document.createTextNode(t.rawJson));
-  document.getElementById('clearOverlay').textContent = t.clearOverlay;
+  const toggleLabel = document.querySelector('.toggle-label');
+  if (toggleLabel) toggleLabel.textContent = t.showLabels;
+  
+  const resultsTitle = document.querySelector('.results-title');
+  if (resultsTitle) resultsTitle.textContent = t.scanComplete;
+  
+  const getLinkBtn = document.getElementById('getLink');
+  if (getLinkBtn) getLinkBtn.textContent = t.getLink;
+  
+  const copyAIBtn = document.getElementById('copyForAI');
+  if (copyAIBtn) copyAIBtn.textContent = t.copyForAI;
+  
+  const copyJsonBtn = document.getElementById('copyJson');
+  if (copyJsonBtn) copyJsonBtn.textContent = t.rawJson;
+  
+  const clearLink = document.getElementById('clearOverlay');
+  if (clearLink) clearLink.textContent = t.clearOverlay;
+  
+  const statusTextEl = document.querySelector('.status-text');
+  if (statusTextEl && (statusTextEl.textContent === 'Ready' || statusTextEl.textContent === '就绪')) {
+    statusTextEl.textContent = t.ready;
+  }
 }
 
 // Open Chat
