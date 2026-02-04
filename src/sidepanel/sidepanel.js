@@ -130,6 +130,29 @@ document.addEventListener('DOMContentLoaded', async () => {
       applyLanguage(selectedLang);
     });
   }
+  
+  // Toggle Panel Mode (Switch to Popup)
+  document.getElementById('togglePanelMode')?.addEventListener('click', async () => {
+    console.log('[raw.data] Switching to Popup mode...');
+    
+    try {
+      // Update preference directly
+      await chrome.storage.local.set({ useSidePanel: false });
+      
+      // Update panel behavior
+      if (chrome.sidePanel && chrome.sidePanel.setPanelBehavior) {
+        await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
+      }
+      
+      console.log('[raw.data] ✓ Switched to Popup mode');
+      console.log('[raw.data] Click extension icon to open popup');
+      
+      // Close side panel
+      window.close();
+    } catch (error) {
+      console.error('[raw.data] Failed to switch mode:', error);
+    }
+  });
 });
 
 // Quick Scan
@@ -854,29 +877,6 @@ clearOverlayLink.addEventListener('click', async (e) => {
     lastScanResult = null;
   } catch (e) {
     // Content script might not be loaded
-  }
-});
-
-// Toggle Panel Mode (Switch to Popup)
-document.getElementById('togglePanelMode')?.addEventListener('click', async () => {
-  console.log('[raw.data] Switching to Popup mode...');
-  
-  try {
-    // Update preference directly
-    await chrome.storage.local.set({ useSidePanel: false });
-    
-    // Update panel behavior
-    if (chrome.sidePanel && chrome.sidePanel.setPanelBehavior) {
-      await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
-    }
-    
-    console.log('[raw.data] ✓ Switched to Popup mode');
-    console.log('[raw.data] Click extension icon to open popup');
-    
-    // Close side panel
-    window.close();
-  } catch (error) {
-    console.error('[raw.data] Failed to switch mode:', error);
   }
 });
 

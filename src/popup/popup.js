@@ -3,29 +3,6 @@
 
 let lastScanResult = null;
 
-// Toggle Panel Mode Button - Switch to Side Panel
-document.getElementById('togglePanelMode')?.addEventListener('click', async () => {
-  console.log('[raw.data] Switching to Side Panel mode...');
-  
-  try {
-    // Update preference directly
-    await chrome.storage.local.set({ useSidePanel: true });
-    
-    // Update panel behavior
-    if (chrome.sidePanel && chrome.sidePanel.setPanelBehavior) {
-      await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
-    }
-    
-    console.log('[raw.data] ✓ Switched to Side Panel mode');
-    console.log('[raw.data] Click extension icon to open side panel');
-    
-    // Close popup
-    window.close();
-  } catch (error) {
-    console.error('[raw.data] Failed to switch mode:', error);
-  }
-});
-
 // Popup Script for raw.data - Main Logic
 
 // DOM Elements
@@ -155,6 +132,29 @@ document.addEventListener('DOMContentLoaded', async () => {
       applyLanguage(selectedLang);
     });
   }
+  
+  // Toggle Panel Mode (Switch to Side Panel)
+  document.getElementById('togglePanelMode')?.addEventListener('click', async () => {
+    console.log('[raw.data] Switching to Side Panel mode...');
+    
+    try {
+      // Update preference directly
+      await chrome.storage.local.set({ useSidePanel: true });
+      
+      // Update panel behavior
+      if (chrome.sidePanel && chrome.sidePanel.setPanelBehavior) {
+        await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+      }
+      
+      console.log('[raw.data] ✓ Switched to Side Panel mode');
+      console.log('[raw.data] Click extension icon to open side panel');
+      
+      // Close popup
+      window.close();
+    } catch (error) {
+      console.error('[raw.data] Failed to switch mode:', error);
+    }
+  });
 });
 
 // Quick Scan
