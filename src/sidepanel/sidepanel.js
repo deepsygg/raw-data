@@ -894,7 +894,7 @@ function applyLanguage(lang) {
       translateHint: 'AI translation',
       explain: 'Explain Mode',
       explainHint: 'Hover to explain',
-      openChat: 'AI Chat',
+      chat: 'AI Chat',
       chatHint: 'Free • Cmd+Shift+K',
       history: 'Scan History',
       historyHint: 'Last 10 scans',
@@ -920,7 +920,7 @@ function applyLanguage(lang) {
       translateHint: 'AI翻译',
       explain: '解释模式',
       explainHint: '悬停解释',
-      openChat: '打开AI聊天',
+      chat: 'AI聊天',
       chatHint: '免费 • Cmd+Shift+K',
       history: '扫描历史',
       historyHint: '最近10次',
@@ -955,14 +955,8 @@ function applyLanguage(lang) {
   const deepScanHint = document.querySelector('#deepScan .btn-hint');
   if (deepScanHint) deepScanHint.textContent = t.deepHint;
   
-  const translateText = document.querySelector('#translatePage .btn-text');
-  if (translateText) translateText.textContent = t.translate;
-  const translateHint = document.querySelector('#translatePage .btn-hint');
-  if (translateHint) translateHint.textContent = t.translateHint;
-  
-  
   const chatText = document.querySelector('#openChat .btn-text');
-  if (chatText) chatText.textContent = t.openChat;
+  if (chatText) chatText.textContent = t.chat;
   const chatHint = document.querySelector('#openChat .btn-hint');
   if (chatHint) chatHint.textContent = t.chatHint;
   

@@ -898,7 +898,7 @@ function applyLanguage(lang) {
       translateHint: 'AI translation',
       explain: 'Explain Mode',
       explainHint: 'Hover to explain',
-      openChat: 'AI Chat',
+      chat: 'AI Chat',
       chatHint: 'Free • Cmd+Shift+K',
       history: 'Scan History',
       historyHint: 'Last 10 scans',
@@ -924,7 +924,7 @@ function applyLanguage(lang) {
       translateHint: 'AI翻译',
       explain: '解释模式',
       explainHint: '悬停解释',
-      openChat: '打开AI聊天',
+      chat: 'AI聊天',
       chatHint: '免费 • Cmd+Shift+K',
       history: '扫描历史',
       historyHint: '最近10次',
@@ -953,11 +953,7 @@ function applyLanguage(lang) {
   document.querySelector('#deepScan .btn-icon + span')?.replaceWith(document.createTextNode(t.deepScan));
   document.querySelector('#deepScan .btn-hint').textContent = t.deepHint;
   
-  document.querySelector('#translatePage .btn-icon + span')?.replaceWith(document.createTextNode(t.translate));
-  document.querySelector('#translatePage .btn-hint').textContent = t.translateHint;
-  
-  
-  document.querySelector('#openChat .btn-icon + span')?.replaceWith(document.createTextNode(t.openChat));
+  document.querySelector('#openChat .btn-icon + span')?.replaceWith(document.createTextNode(t.chat));
   document.querySelector('#openChat .btn-hint').textContent = t.chatHint;
   
   document.querySelector('#openHistory .btn-icon + span')?.replaceWith(document.createTextNode(t.history));
