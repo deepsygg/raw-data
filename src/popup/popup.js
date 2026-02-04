@@ -1150,8 +1150,10 @@ openChatBtn.addEventListener('click', async () => {
   }
   
   try {
+    // Send scan data if available
     await chrome.tabs.sendMessage(tab.id, {
-      action: 'toggleChat'
+      action: 'toggleChat',
+      scanData: lastScanResult  // Always pass current scan if available
     });
     window.close(); // Close popup
   } catch (e) {
@@ -1174,9 +1176,10 @@ openChatBtn.addEventListener('click', async () => {
         // Wait for scripts to initialize
         await new Promise(resolve => setTimeout(resolve, 300));
         
-        // Try again
+        // Try again with scan data
         await chrome.tabs.sendMessage(tab.id, {
-          action: 'toggleChat'
+          action: 'toggleChat',
+          scanData: lastScanResult  // Always pass current scan if available
         });
         window.close();
       } catch (injectError) {
