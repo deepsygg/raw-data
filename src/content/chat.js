@@ -72,23 +72,8 @@
     messagesContainer = document.getElementById('rawdata-chat-messages');
     inputField = document.getElementById('rawdata-chat-input');
     
-    // Event listeners
-    chatContainer.querySelector('.rawdata-chat-close').addEventListener('click', hideChat);
-    chatContainer.querySelector('.rawdata-chat-clear').addEventListener('click', clearChat);
-    chatContainer.querySelector('.rawdata-chat-send').addEventListener('click', sendMessage);
-    
-    inputField.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
-    });
-    
-    // Auto-resize textarea
-    inputField.addEventListener('input', () => {
-      inputField.style.height = 'auto';
-      inputField.style.height = Math.min(inputField.scrollHeight, 120) + 'px';
-    });
+    console.log('[raw.data] Chat UI created');
+    // Event listeners are handled by delegation at the bottom of this file
   }
   
   // Show chat
@@ -96,7 +81,12 @@
     if (!chatContainer) createChatUI();
     chatContainer.classList.add('visible');
     chatVisible = true;
-    inputField.focus();
+    
+    // Update references (in case they were lost)
+    messagesContainer = document.getElementById('rawdata-chat-messages');
+    inputField = document.getElementById('rawdata-chat-input');
+    
+    if (inputField) inputField.focus();
     
     // Perform auto-scan if no scan data
     if (!currentScanData) {
@@ -219,13 +209,26 @@
   
   // Send message
   async function sendMessage() {
-    const message = inputField.value.trim();
-    if (!message) return;
+    console.log('[raw.data] sendMessage called');
+    
+    // Always get fresh reference
+    const input = document.getElementById('rawdata-chat-input');
+    if (!input) {
+      console.error('[raw.data] Input field not found');
+      return;
+    }
+    
+    const message = input.value.trim();
+    console.log('[raw.data] message:', message);
+    if (!message) {
+      console.log('[raw.data] empty message, returning');
+      return;
+    }
     
     // Add user message
     addMessage(message, 'user');
-    inputField.value = '';
-    inputField.style.height = 'auto';
+    input.value = '';
+    input.style.height = 'auto';
     
     // Add to conversation history
     conversationHistory.push({
@@ -302,13 +305,53 @@
     return true;
   });
   
-  // Keyboard shortcut (Cmd/Ctrl + Shift + K)
+  // Event delegation for chat controls (survives multiple injections)
+  document.addEventListener('click', (e) => {
+    // Close button
+    if (e.target.closest('.rawdata-chat-close')) {
+      console.log('[raw.data] Close clicked (delegation)');
+      hideChat();
+    }
+    
+    // Clear button
+    if (e.target.closest('.rawdata-chat-clear')) {
+      console.log('[raw.data] Clear clicked (delegation)');
+      clearChat();
+    }
+    
+    // Send button
+    if (e.target.closest('.rawdata-chat-send')) {
+      console.log('[raw.data] Send clicked (delegation)');
+      sendMessage();
+    }
+  }, true);
+  
+  // Enter key for input
   document.addEventListener('keydown', (e) => {
+    // Chat keyboard shortcut (Cmd/Ctrl + Shift + K)
     if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'K') {
       e.preventDefault();
       toggleChat();
+      return;
     }
-  });
+    
+    // Enter in chat input
+    const target = e.target;
+    if (target && target.id === 'rawdata-chat-input' && e.key === 'Enter' && !e.shiftKey) {
+      console.log('[raw.data] Enter pressed (delegation)');
+      e.preventDefault();
+      sendMessage();
+    }
+  }, true);
+  
+  // Auto-resize textarea
+  document.addEventListener('input', (e) => {
+    if (e.target && e.target.id === 'rawdata-chat-input') {
+      const input = e.target;
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+    }
+  }, true);
   
   console.log('[raw.data] Chat module loaded. Press Cmd+Shift+K to open.');
 })();
