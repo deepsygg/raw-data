@@ -454,6 +454,9 @@ async function generateAISummary(scanData, scanType) {
         }
       });
       summaryEl.appendChild(chatButton);
+      
+      // Save UI state after adding the chat button
+      await saveUIState();
     } else {
       summaryEl.innerHTML = `<span style="color: #E8998D;">Failed to generate summary: ${response.error}</span>`;
     }
