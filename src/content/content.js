@@ -757,7 +757,20 @@
       type: 'unknown',
       repo: null,
       files: [],
-      readme: null
+      readme: null,
+      metrics: {
+        stars: 0,
+        forks: 0,
+        contributors: 0,
+        isFork: false,
+        hasLicense: false,
+        age: null
+      },
+      codePatterns: {
+        genericFiles: [],
+        boilerplateScore: 0,
+        suspiciousPatterns: []
+      }
     };
     
     // Check if it's a repo page
@@ -767,24 +780,95 @@
       data.repo = window.location.pathname.split('/').slice(1, 3).join('/');
     }
     
-    // Get file list
+    // Get repository metrics
+    const starsEl = document.querySelector('#repo-stars-counter-star, [href$="/stargazers"]');
+    if (starsEl) {
+      const starsText = starsEl.textContent?.trim();
+      data.metrics.stars = parseGitHubNumber(starsText);
+    }
+    
+    const forksEl = document.querySelector('#repo-network-counter, [href$="/forks"]');
+    if (forksEl) {
+      const forksText = forksEl.textContent?.trim();
+      data.metrics.forks = parseGitHubNumber(forksText);
+    }
+    
+    // Check if it's a fork
+    const forkBadge = document.querySelector('.fork-flag, [class*="fork"]');
+    data.metrics.isFork = !!forkBadge;
+    
+    // Get file list and analyze
+    const genericNames = ['main.js', 'index.js', 'app.js', 'script.js', 'utils.js', 'helper.js', 'config.js', 'test.js'];
+    let boilerplateCount = 0;
+    
     document.querySelectorAll('.react-directory-row, .js-navigation-item').forEach(row => {
       const link = row.querySelector('a.Link--primary, a.js-navigation-open');
       if (link) {
+        const fileName = link.textContent?.trim();
         data.files.push({
-          name: link.textContent?.trim(),
+          name: fileName,
           path: link.getAttribute('href')
         });
+        
+        // Check for generic filenames
+        if (genericNames.includes(fileName?.toLowerCase())) {
+          data.codePatterns.genericFiles.push(fileName);
+        }
+        
+        // Check for LICENSE
+        if (fileName?.toLowerCase().includes('license')) {
+          data.metrics.hasLicense = true;
+        }
+        
+        // Boilerplate patterns
+        if (fileName?.match(/^(setup|install|readme|contributing|changelog)\.(md|txt)$/i)) {
+          boilerplateCount++;
+        }
       }
     });
+    
+    // Calculate boilerplate score
+    if (data.files.length > 0) {
+      data.codePatterns.boilerplateScore = Math.round((boilerplateCount / data.files.length) * 100);
+    }
     
     // Get README content
     const readme = document.querySelector('article.markdown-body, .readme');
     if (readme) {
       data.readme = readme.innerText?.substring(0, 3000);
+      
+      // Check for template README
+      const templatePhrases = [
+        'your-project-name',
+        'project-description',
+        'TODO:',
+        'replace this',
+        'edit this file'
+      ];
+      const readmeText = data.readme.toLowerCase();
+      templatePhrases.forEach(phrase => {
+        if (readmeText.includes(phrase.toLowerCase())) {
+          data.codePatterns.suspiciousPatterns.push('Template README detected');
+        }
+      });
     }
     
     return data;
+  }
+  
+  // Parse GitHub numbers (1.2k, 3.4m, etc)
+  function parseGitHubNumber(text) {
+    if (!text) return 0;
+    text = text.toLowerCase().replace(/,/g, '');
+    const match = text.match(/([\d.]+)([km]?)/);
+    if (!match) return 0;
+    
+    const num = parseFloat(match[1]);
+    const suffix = match[2];
+    
+    if (suffix === 'k') return Math.round(num * 1000);
+    if (suffix === 'm') return Math.round(num * 1000000);
+    return Math.round(num);
   }
   
   // Etherscan scanner

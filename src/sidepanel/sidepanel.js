@@ -478,6 +478,11 @@ async function generateAISummary(scanData, scanType) {
       });
       summaryEl.appendChild(chatButton);
       
+      // Add Code Analysis for GitHub repositories
+      if (scanType === 'deep' && scanData.deep_data?.source === 'github') {
+        await generateCodeAnalysis(scanData.deep_data.data, summaryEl);
+      }
+      
       // Save UI state after adding the chat button
       await saveUIState();
     } else {
@@ -486,6 +491,143 @@ async function generateAISummary(scanData, scanType) {
   } catch (error) {
     console.error('AI Summary error:', error);
     summaryEl.innerHTML = `<span style="color: #E8998D;">Error: ${error.message}</span>`;
+  }
+}
+
+// Generate Code Analysis for GitHub
+async function generateCodeAnalysis(repoData, summaryEl) {
+  try {
+    // Create Code Analysis container
+    const analysisContainer = document.createElement('div');
+    analysisContainer.className = 'code-analysis';
+    analysisContainer.innerHTML = '<div style="color: #8A8180; margin-top: 16px;">Analyzing code...</div>';
+    summaryEl.appendChild(analysisContainer);
+    
+    // Request analysis from background
+    const response = await chrome.runtime.sendMessage({
+      action: 'analyzeGitHubCode',
+      repoData: repoData
+    });
+    
+    if (response.success) {
+      const analysis = response.analysis;
+      
+      // Build compact view HTML
+      const statusColors = {
+        'RISKY': '#E8998D',
+        'MIXED': '#E8B68D',
+        'CLEAN': '#8DE89B'
+      };
+      
+      const statusColor = statusColors[analysis.status] || statusColors['MIXED'];
+      
+      let html = `
+        <div class="code-analysis-header">
+          <span class="code-analysis-title">Code Analysis</span>
+          <span class="code-analysis-status" style="color: ${statusColor}">${analysis.status}</span>
+        </div>
+        
+        <div class="code-analysis-compact">
+          <div class="analysis-row">
+            <span class="analysis-label">Metrics</span>
+            <span class="analysis-value">${analysis.metrics.stars} stars • ${analysis.metrics.forks} forks</span>
+          </div>
+          
+          <div class="analysis-row">
+            <span class="analysis-label">Patterns</span>
+            <span class="analysis-value">${analysis.patterns.boilerplateScore}% boilerplate detected</span>
+          </div>
+          
+          <div class="analysis-row">
+            <span class="analysis-label">AI</span>
+            <span class="analysis-value">${analysis.oneLine}</span>
+          </div>
+      `;
+      
+      if (analysis.redFlags.length > 0) {
+        html += `
+          <div class="analysis-row">
+            <span class="analysis-label">Flags</span>
+            <span class="analysis-value" style="color: ${statusColors['RISKY']}">${analysis.redFlags.join(', ')}</span>
+          </div>
+        `;
+      }
+      
+      html += `
+        </div>
+        
+        <button class="btn btn-small code-analysis-expand" style="margin-top: 12px; width: 100%;">
+          View full report
+        </button>
+        
+        <div class="code-analysis-full" style="display: none; margin-top: 12px;">
+          <div class="analysis-section">
+            <div class="analysis-section-title">GITHUB METRICS</div>
+            <div class="analysis-row">
+              <span class="analysis-label">Repository type</span>
+              <span class="analysis-value">${analysis.metrics.isFork ? 'Fork' : 'Original'}</span>
+            </div>
+            <div class="analysis-row">
+              <span class="analysis-label">Stars / Forks</span>
+              <span class="analysis-value">${analysis.metrics.stars} / ${analysis.metrics.forks}</span>
+            </div>
+            <div class="analysis-row">
+              <span class="analysis-label">Has License</span>
+              <span class="analysis-value">${analysis.metrics.hasLicense ? 'Yes' : 'No'}</span>
+            </div>
+          </div>
+          
+          <div class="analysis-section">
+            <div class="analysis-section-title">CODE PATTERNS</div>
+            ${analysis.patterns.genericFiles.length > 0 ? `
+            <div class="analysis-row">
+              <span class="analysis-label">Generic filenames</span>
+              <span class="analysis-value">${analysis.patterns.genericFiles.join(', ')}</span>
+            </div>
+            ` : ''}
+            <div class="analysis-row">
+              <span class="analysis-label">Boilerplate matches</span>
+              <span class="analysis-value">${analysis.patterns.boilerplateScore}%</span>
+            </div>
+          </div>
+          
+          <div class="analysis-section">
+            <div class="analysis-section-title">AI ASSESSMENT</div>
+            <div class="analysis-text">${analysis.detailed}</div>
+          </div>
+          
+          ${analysis.redFlags.length > 0 ? `
+          <div class="analysis-section">
+            <div class="analysis-section-title" style="color: ${statusColors['RISKY']}">RED FLAGS</div>
+            <ul class="analysis-list">
+              ${analysis.redFlags.map(flag => `<li>${flag}</li>`).join('')}
+            </ul>
+          </div>
+          ` : ''}
+        </div>
+      `;
+      
+      analysisContainer.innerHTML = html;
+      
+      // Add expand/collapse handler
+      const expandBtn = analysisContainer.querySelector('.code-analysis-expand');
+      const fullReport = analysisContainer.querySelector('.code-analysis-full');
+      
+      expandBtn.addEventListener('click', () => {
+        if (fullReport.style.display === 'none') {
+          fullReport.style.display = 'block';
+          expandBtn.textContent = 'Hide full report';
+        } else {
+          fullReport.style.display = 'none';
+          expandBtn.textContent = 'View full report';
+        }
+      });
+      
+    } else {
+      analysisContainer.innerHTML = `<div style="color: #E8998D; margin-top: 16px;">Code analysis failed: ${response.error}</div>`;
+    }
+  } catch (error) {
+    console.error('Code Analysis error:', error);
   }
 }
 

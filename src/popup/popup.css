@@ -691,6 +691,132 @@ body {
   to { transform: rotate(360deg); }
 }
 
+/* Code Analysis */
+.code-analysis {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.code-analysis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.code-analysis-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+  font-size: 11px;
+}
+
+.code-analysis-status {
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  padding: 3px 6px;
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+}
+
+.code-analysis-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.analysis-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.analysis-label {
+  min-width: 65px;
+  color: var(--text-secondary);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.analysis-value {
+  color: var(--text-primary);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.code-analysis-expand {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 10px;
+  padding: 6px 10px;
+}
+
+.code-analysis-expand:hover {
+  background: var(--coral);
+  color: var(--bg-primary);
+  border-color: var(--coral);
+}
+
+.code-analysis-full {
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.analysis-section {
+  margin-bottom: 12px;
+}
+
+.analysis-section:last-child {
+  margin-bottom: 0;
+}
+
+.analysis-section-title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.analysis-text {
+  color: var(--text-primary);
+  line-height: 1.5;
+  font-size: 10px;
+}
+
+.analysis-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.analysis-list li {
+  padding: 3px 0;
+  padding-left: 12px;
+  position: relative;
+  color: var(--text-primary);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.analysis-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--coral);
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

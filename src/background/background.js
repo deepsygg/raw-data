@@ -99,6 +99,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       .catch(error => sendResponse({ success: false, error: error.message }));
     return true;
   }
+  
+  // Handle GitHub Code Analysis
+  if (request.action === 'analyzeGitHubCode') {
+    analyzeGitHubCode(request.repoData)
+      .then(analysis => sendResponse({ success: true, analysis: analysis }))
+      .catch(error => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
 });
 
 // Handle Claude Chat
@@ -310,6 +318,135 @@ async function updatePanelMode(useSidePanel) {
     console.error('[raw.data] Failed to update panel mode:', error);
     throw error;
   }
+}
+
+// Analyze GitHub repository code
+async function analyzeGitHubCode(repoData) {
+  const claudeApiKey = 'YOUR_CLAUDE_API_KEY_HERE';
+  
+  // Build analysis prompt
+  const prompt = `Analyze this GitHub repository for code quality and legitimacy. Be concise and direct.
+
+REPOSITORY: ${repoData.repo}
+METRICS:
+- Stars: ${repoData.metrics?.stars || 0}
+- Forks: ${repoData.metrics?.forks || 0}
+- Is Fork: ${repoData.metrics?.isFork ? 'Yes' : 'No'}
+- Has License: ${repoData.metrics?.hasLicense ? 'Yes' : 'No'}
+
+FILES (${repoData.files?.length || 0} total):
+${repoData.files?.slice(0, 30).map(f => f.name).join(', ')}
+
+CODE PATTERNS:
+- Generic filenames: ${repoData.codePatterns?.genericFiles?.join(', ') || 'None'}
+- Boilerplate score: ${repoData.codePatterns?.boilerplateScore || 0}%
+- Suspicious patterns: ${repoData.codePatterns?.suspiciousPatterns?.join(', ') || 'None'}
+
+README SAMPLE:
+${repoData.readme?.substring(0, 500) || 'No README'}
+
+Provide:
+1. ONE-LINE ASSESSMENT (max 80 chars): Quick verdict on code legitimacy
+2. DETAILED ASSESSMENT (2-3 sentences): Code originality, quality, concerns
+3. STATUS: RISKY, MIXED, or CLEAN
+4. RED FLAGS: List specific issues (or "None" if clean)
+
+Format:
+ONE_LINE: [your assessment]
+DETAILED: [your assessment]
+STATUS: [RISKY/MIXED/CLEAN]
+RED_FLAGS: [comma-separated list or "None"]`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': claudeApiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5-20250929',
+        max_tokens: 512,
+        messages: [{
+          role: 'user',
+          content: prompt
+        }]
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Claude API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    const aiResponse = data.content[0].text.trim();
+    
+    // Parse AI response
+    const analysis = parseCodeAnalysis(aiResponse, repoData);
+    
+    return analysis;
+    
+  } catch (error) {
+    console.error('[raw.data] Code analysis error:', error);
+    throw error;
+  }
+}
+
+// Parse AI analysis response
+function parseCodeAnalysis(aiResponse, repoData) {
+  const lines = aiResponse.split('\n');
+  let oneLine = '';
+  let detailed = '';
+  let status = 'MIXED';
+  let redFlags = [];
+  
+  lines.forEach(line => {
+    if (line.startsWith('ONE_LINE:')) {
+      oneLine = line.substring(9).trim();
+    } else if (line.startsWith('DETAILED:')) {
+      detailed = line.substring(9).trim();
+    } else if (line.startsWith('STATUS:')) {
+      status = line.substring(7).trim().toUpperCase();
+      if (!['RISKY', 'MIXED', 'CLEAN'].includes(status)) {
+        status = 'MIXED';
+      }
+    } else if (line.startsWith('RED_FLAGS:')) {
+      const flags = line.substring(10).trim();
+      if (flags !== 'None' && flags !== 'none') {
+        redFlags = flags.split(',').map(f => f.trim()).filter(f => f);
+      }
+    }
+  });
+  
+  // Add programmatic red flags
+  if (!repoData.metrics?.hasLicense) {
+    redFlags.push('No license file');
+  }
+  
+  if (repoData.codePatterns?.suspiciousPatterns?.length > 0) {
+    redFlags.push(...repoData.codePatterns.suspiciousPatterns);
+  }
+  
+  return {
+    status: status,
+    oneLine: oneLine || 'Code analysis complete',
+    detailed: detailed || 'Repository structure analyzed.',
+    redFlags: [...new Set(redFlags)], // Remove duplicates
+    metrics: {
+      contributors: repoData.metrics?.contributors || 'N/A',
+      age: repoData.metrics?.age || 'N/A',
+      stars: repoData.metrics?.stars || 0,
+      forks: repoData.metrics?.forks || 0,
+      isFork: repoData.metrics?.isFork || false,
+      hasLicense: repoData.metrics?.hasLicense || false
+    },
+    patterns: {
+      genericFiles: repoData.codePatterns?.genericFiles || [],
+      boilerplateScore: repoData.codePatterns?.boilerplateScore || 0
+    }
+  };
 }
 
 console.log('raw.data background service worker loaded');
