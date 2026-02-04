@@ -7,18 +7,23 @@ let lastScanResult = null;
 document.getElementById('togglePanelMode')?.addEventListener('click', async () => {
   console.log('[raw.data] Switching to Side Panel mode...');
   
-  // Notify background script to switch to side panel mode
-  chrome.runtime.sendMessage({ 
-    action: 'togglePanelMode', 
-    useSidePanel: true,
-    openSidePanel: true
-  }, (response) => {
-    if (response && response.success) {
-      console.log('[raw.data] ✓ Mode switched to Side Panel');
-      // Close popup
-      window.close();
+  try {
+    // Update preference directly
+    await chrome.storage.local.set({ useSidePanel: true });
+    
+    // Update panel behavior
+    if (chrome.sidePanel && chrome.sidePanel.setPanelBehavior) {
+      await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
     }
-  });
+    
+    console.log('[raw.data] ✓ Switched to Side Panel mode');
+    console.log('[raw.data] Click extension icon to open side panel');
+    
+    // Close popup
+    window.close();
+  } catch (error) {
+    console.error('[raw.data] Failed to switch mode:', error);
+  }
 });
 
 // Popup Script for raw.data - Main Logic

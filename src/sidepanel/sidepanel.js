@@ -861,18 +861,23 @@ clearOverlayLink.addEventListener('click', async (e) => {
 document.getElementById('togglePanelMode')?.addEventListener('click', async () => {
   console.log('[raw.data] Switching to Popup mode...');
   
-  // Notify background script to switch to popup mode
-  chrome.runtime.sendMessage({ 
-    action: 'togglePanelMode', 
-    useSidePanel: false,
-    openPopup: true
-  }, (response) => {
-    if (response && response.success) {
-      console.log('[raw.data] ✓ Mode switched to Popup');
-      // Close side panel
-      window.close();
+  try {
+    // Update preference directly
+    await chrome.storage.local.set({ useSidePanel: false });
+    
+    // Update panel behavior
+    if (chrome.sidePanel && chrome.sidePanel.setPanelBehavior) {
+      await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
     }
-  });
+    
+    console.log('[raw.data] ✓ Switched to Popup mode');
+    console.log('[raw.data] Click extension icon to open popup');
+    
+    // Close side panel
+    window.close();
+  } catch (error) {
+    console.error('[raw.data] Failed to switch mode:', error);
+  }
 });
 
 // Apply language to UI
