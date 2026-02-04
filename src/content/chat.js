@@ -14,6 +14,48 @@
   let currentScanData = null;
   let conversationHistory = [];
   
+  const CHAT_HISTORY_KEY = 'chatConversationHistory';
+  
+  // Save chat history to storage
+  async function saveChatHistory() {
+    try {
+      await chrome.storage.local.set({ 
+        [CHAT_HISTORY_KEY]: conversationHistory 
+      });
+      console.log('[raw.data] Chat history saved:', conversationHistory.length, 'messages');
+    } catch (error) {
+      console.error('[raw.data] Failed to save chat history:', error);
+    }
+  }
+  
+  // Load chat history from storage
+  async function loadChatHistory() {
+    try {
+      const result = await chrome.storage.local.get(CHAT_HISTORY_KEY);
+      if (result[CHAT_HISTORY_KEY]) {
+        conversationHistory = result[CHAT_HISTORY_KEY];
+        console.log('[raw.data] Chat history loaded:', conversationHistory.length, 'messages');
+        
+        // Restore messages in UI
+        conversationHistory.forEach(msg => {
+          if (msg.role === 'user' || msg.role === 'assistant') {
+            addMessage(msg.content, msg.role, false); // false = don't scroll
+          }
+        });
+        
+        // Scroll to bottom after restoring all messages
+        if (messagesContainer) {
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        return true;
+      }
+    } catch (error) {
+      console.error('[raw.data] Failed to load chat history:', error);
+    }
+    return false;
+  }
+  
   // Create chat UI
   function createChatUI() {
     if (chatContainer) return;
@@ -77,8 +119,19 @@
   }
   
   // Show chat
-  function showChat() {
-    if (!chatContainer) createChatUI();
+  async function showChat() {
+    if (!chatContainer) {
+      createChatUI();
+      
+      // Load chat history on first open
+      const historyLoaded = await loadChatHistory();
+      
+      // If no history, perform auto-scan
+      if (!historyLoaded && !currentScanData) {
+        performAutoScan();
+      }
+    }
+    
     chatContainer.classList.add('visible');
     chatVisible = true;
     
@@ -87,11 +140,6 @@
     inputField = document.getElementById('rawdata-chat-input');
     
     if (inputField) inputField.focus();
-    
-    // Perform auto-scan if no scan data
-    if (!currentScanData) {
-      performAutoScan();
-    }
   }
   
   // Hide chat
@@ -112,7 +160,7 @@
   }
   
   // Clear chat
-  function clearChat() {
+  async function clearChat() {
     conversationHistory = [];
     messagesContainer.innerHTML = `
       <div class="rawdata-chat-welcome">
@@ -120,6 +168,10 @@
         <div class="rawdata-chat-welcome-text">Chat cleared. Ready for new questions.</div>
       </div>
     `;
+    
+    // Clear saved history
+    await chrome.storage.local.remove(CHAT_HISTORY_KEY);
+    console.log('[raw.data] Chat history cleared');
   }
   
   // Perform auto scan
@@ -143,7 +195,7 @@
   }
   
   // Add message to UI
-  function addMessage(text, role = 'user') {
+  function addMessage(text, role = 'user', autoScroll = true) {
     const messageEl = document.createElement('div');
     messageEl.className = `rawdata-chat-message rawdata-chat-message-${role}`;
     
@@ -163,7 +215,10 @@
     if (welcome) welcome.remove();
     
     messagesContainer.appendChild(messageEl);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    if (autoScroll) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
     
     return messageEl;
   }
@@ -236,6 +291,9 @@
       content: message
     });
     
+    // Save history after user message
+    await saveChatHistory();
+    
     // Show loading
     const loadingEl = addLoadingIndicator();
     
@@ -260,6 +318,9 @@
           role: 'assistant',
           content: response.message
         });
+        
+        // Save history after AI response
+        await saveChatHistory();
       } else {
         // Show error
         addMessage(`Error: ${response.error || 'Failed to get response'}`, 'assistant');
@@ -283,12 +344,14 @@
       if (request.initialSummary && !chatVisible) {
         showChat();
         // Add AI message with summary
-        setTimeout(() => {
+        setTimeout(async () => {
           addMessage(request.initialSummary, 'assistant');
           conversationHistory.push({
             role: 'assistant',
             content: request.initialSummary
           });
+          // Save history after adding initial summary
+          await saveChatHistory();
         }, 100);
       } else {
         toggleChat();
