@@ -88,6 +88,77 @@ async function restoreUIState() {
   }
 }
 
+// Event delegation for dynamic buttons in results
+resultsPreview.addEventListener('click', async (e) => {
+  // Handle "Ask follow-up questions" button
+  if (e.target.classList.contains('ai-chat-btn') || e.target.closest('.ai-chat-btn')) {
+    const button = e.target.classList.contains('ai-chat-btn') ? e.target : e.target.closest('.ai-chat-btn');
+    if (!lastScanResult) return;
+    
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    
+    try {
+      // Get AI summary text
+      const summaryEl = document.getElementById('aiSummaryContent');
+      const summaryText = summaryEl?.textContent || '';
+      
+      // Send scan data and summary to chat
+      await chrome.tabs.sendMessage(tab.id, { 
+        action: 'toggleChat',
+        scanData: lastScanResult,
+        initialSummary: summaryText
+      });
+      window.close();
+    } catch (e) {
+      // Content script not loaded, inject it
+      if (e.message.includes('Receiving end does not exist')) {
+        try {
+          await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            files: ['src/content/content.js', 'src/content/chat.js']
+          });
+          
+          await chrome.scripting.insertCSS({
+            target: { tabId: tab.id },
+            files: ['src/content/content.css', 'src/content/chat.css']
+          });
+          
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
+          const summaryEl = document.getElementById('aiSummaryContent');
+          const summaryText = summaryEl?.textContent || '';
+          
+          await chrome.tabs.sendMessage(tab.id, { 
+            action: 'toggleChat',
+            scanData: lastScanResult,
+            initialSummary: summaryText
+          });
+          window.close();
+        } catch (injectError) {
+          console.error('Failed to inject chat:', injectError);
+          alert('Failed to open chat. Please refresh the page and try again.');
+        }
+      }
+    }
+  }
+  
+  // Handle "View full report" button for Code Analysis
+  if (e.target.classList.contains('code-analysis-expand') || e.target.closest('.code-analysis-expand')) {
+    const button = e.target.classList.contains('code-analysis-expand') ? e.target : e.target.closest('.code-analysis-expand');
+    const fullReport = button.parentElement.querySelector('.code-analysis-full');
+    
+    if (fullReport) {
+      if (fullReport.style.display === 'none' || !fullReport.style.display) {
+        fullReport.style.display = 'block';
+        button.textContent = 'Hide full report';
+      } else {
+        fullReport.style.display = 'none';
+        button.textContent = 'View full report';
+      }
+    }
+  }
+});
+
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
   // Restore previous UI state first
@@ -432,52 +503,12 @@ async function generateAISummary(scanData, scanType) {
       summaryEl.innerHTML = response.message.replace(/\n/g, '<br>');
       summaryEl.classList.add('ai-summary-ready');
       
-      // Add "Open Chat" button
+      // Add "Open Chat" button (event handled by delegation)
       const chatButton = document.createElement('button');
       chatButton.className = 'btn btn-small ai-chat-btn';
       chatButton.innerHTML = '> Ask follow-up questions';
       chatButton.style.marginTop = '10px';
       chatButton.style.width = '100%';
-      chatButton.addEventListener('click', async () => {
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        
-        try {
-          // Send scan data and summary to chat
-          await chrome.tabs.sendMessage(tab.id, { 
-            action: 'toggleChat',
-            scanData: scanData,
-            initialSummary: response.message
-          });
-          window.close();
-        } catch (e) {
-          // Content script not loaded, inject it
-          if (e.message.includes('Receiving end does not exist')) {
-            try {
-              await chrome.scripting.executeScript({
-                target: { tabId: tab.id },
-                files: ['src/content/content.js', 'src/content/chat.js']
-              });
-              
-              await chrome.scripting.insertCSS({
-                target: { tabId: tab.id },
-                files: ['src/content/content.css', 'src/content/chat.css']
-              });
-              
-              await new Promise(resolve => setTimeout(resolve, 300));
-              
-              await chrome.tabs.sendMessage(tab.id, { 
-                action: 'toggleChat',
-                scanData: scanData,
-                initialSummary: response.message
-              });
-              window.close();
-            } catch (injectError) {
-              console.error('Failed to inject chat:', injectError);
-              alert('Failed to open chat. Please refresh the page and try again.');
-            }
-          }
-        }
-      });
       summaryEl.appendChild(chatButton);
       
       // Add Code Analysis for GitHub repositories
@@ -610,20 +641,7 @@ async function generateCodeAnalysis(repoData, summaryEl) {
       `;
       
       analysisContainer.innerHTML = html;
-      
-      // Add expand/collapse handler
-      const expandBtn = analysisContainer.querySelector('.code-analysis-expand');
-      const fullReport = analysisContainer.querySelector('.code-analysis-full');
-      
-      expandBtn.addEventListener('click', () => {
-        if (fullReport.style.display === 'none') {
-          fullReport.style.display = 'block';
-          expandBtn.textContent = 'Hide full report';
-        } else {
-          fullReport.style.display = 'none';
-          expandBtn.textContent = 'View full report';
-        }
-      });
+      // Event handled by delegation above
       
     } else {
       analysisContainer.innerHTML = `<div style="color: #E8998D; margin-top: 16px;">Code analysis failed: ${response.error}</div>`;
