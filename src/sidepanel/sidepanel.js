@@ -1053,5 +1053,9 @@ async function detectPageLanguage(tabId) {
     const result = await chrome.tabs.sendMessage(tabId, {
       action: 'getPageLanguage'
     });
-    
-// Explain Page Mode
+    return result.language || 'Unknown';
+  } catch (error) {
+    console.error('[raw.data] Failed to detect page language:', error);
+    return 'Unknown';
+  }
+}
