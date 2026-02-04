@@ -94,7 +94,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   
   // Handle panel mode update
   if (request.action === 'updatePanelMode' || request.action === 'togglePanelMode') {
-    updatePanelMode(request.useSidePanel)
+    updatePanelMode(request.useSidePanel, request.openPopup, request.openSidePanel)
       .then(() => sendResponse({ success: true }))
       .catch(error => sendResponse({ success: false, error: error.message }));
     return true;
@@ -292,7 +292,7 @@ async function generateScanLink(data) {
 }
 
 // Update panel mode (side panel vs popup)
-async function updatePanelMode(useSidePanel) {
+async function updatePanelMode(useSidePanel, openPopup = false, openSidePanel = false) {
   try {
     // Save preference
     await chrome.storage.local.set({ useSidePanel });
@@ -305,6 +305,40 @@ async function updatePanelMode(useSidePanel) {
       });
       console.log('[raw.data] Panel behavior updated:', useSidePanel ? 'Side Panel' : 'Popup');
       console.log('[raw.data] Next click will open:', useSidePanel ? 'Side Panel' : 'Popup');
+      
+      // If requested to open popup immediately
+      if (openPopup && !useSidePanel) {
+        // Small delay to ensure preference is saved
+        setTimeout(async () => {
+          try {
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            if (tab) {
+              // Open popup by triggering action programmatically
+              await chrome.action.openPopup();
+              console.log('[raw.data] Popup opened');
+            }
+          } catch (e) {
+            console.log('[raw.data] Could not auto-open popup:', e.message);
+            console.log('[raw.data] User needs to click extension icon');
+          }
+        }, 200);
+      }
+      
+      // If requested to open side panel immediately
+      if (openSidePanel && useSidePanel) {
+        setTimeout(async () => {
+          try {
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            if (tab && chrome.sidePanel && chrome.sidePanel.open) {
+              await chrome.sidePanel.open({ tabId: tab.id });
+              console.log('[raw.data] Side panel opened');
+            }
+          } catch (e) {
+            console.log('[raw.data] Could not auto-open side panel:', e.message);
+            console.log('[raw.data] User needs to click extension icon');
+          }
+        }, 200);
+      }
     }
   } catch (error) {
     console.error('[raw.data] Failed to update panel mode:', error);

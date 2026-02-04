@@ -864,15 +864,13 @@ document.getElementById('togglePanelMode')?.addEventListener('click', async () =
   // Notify background script to switch to popup mode
   chrome.runtime.sendMessage({ 
     action: 'togglePanelMode', 
-    useSidePanel: false 
+    useSidePanel: false,
+    openPopup: true
   }, (response) => {
     if (response && response.success) {
       console.log('[raw.data] ✓ Mode switched to Popup');
-      console.log('[raw.data] Close panel and click icon again');
-      // Close panel after short delay
-      setTimeout(() => {
-        window.close();
-      }, 500);
+      // Close side panel
+      window.close();
     }
   });
 });
